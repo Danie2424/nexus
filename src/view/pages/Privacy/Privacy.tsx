@@ -757,9 +757,7 @@ const Privacy: React.FC = () => {
               </div>
               <p className="privacy-text">If you have any questions about this Privacy Portal or our privacy practices, please contact our Data Protection Officer at:</p>
               <p className="privacy-text" style={{ marginTop: '15px' }}>
-                <strong>Email:</strong> privacy@nexus-exchange.com<br />
-                <strong>Phone:</strong> +1 (555) 123-4567<br />
-                <strong>Address:</strong> Nexus Data Protection Office, 123 Crypto Street, Digital District, NY 10001
+                <strong>Email:</strong> support@nexus-exchange.com<br />
               </p>
               <p className="privacy-text" style={{ marginTop: '15px' }}>We are committed to working with you to obtain a fair resolution of any complaint or concern about privacy.</p>
             </div>

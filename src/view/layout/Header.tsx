@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 
 function Header() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
   const router = [
     {
       text: "Home",
@@ -28,6 +31,14 @@ function Header() {
     }
   ];
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <header className="nexus-header">
       <div className="nexus-container">
@@ -37,10 +48,14 @@ function Header() {
             <div className="nexus-logo">
               <img src="./logo.png" alt="Nexus Exchange" width={140} />
             </div>
-            <ul className="nexus-nav-menu">
+            <ul className={`nexus-nav-menu ${isMobileMenuOpen ? 'nexus-active' : ''}`}>
               {router.map((item, index) => (
                 <li key={index}>
-                  <Link to={item.path} className="nexus-nav-link">
+                  <Link 
+                    to={item.path} 
+                    className="nexus-nav-link"
+                    onClick={closeMobileMenu}
+                  >
                     {item.text}
                   </Link>
                 </li>
@@ -62,8 +77,8 @@ function Header() {
             </div>
           </div>
 
-          <div className="nexus-mobile-toggle">
-            <i className="fas fa-bars" />
+          <div className="nexus-mobile-toggle" onClick={toggleMobileMenu}>
+            <i className={`fas ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'}`} />
           </div>
         </div>
       </div>
@@ -217,13 +232,29 @@ function Header() {
             top: 100%;
             left: 0;
             width: 100%;
-            background-color: #000000;
+            background-color: rgba(0, 0, 0, 0.95);
             padding: 20px;
             gap: 15px;
+            z-index: 1001;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+          }
+
+          .nexus-nav-menu.nexus-active li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          }
+
+          .nexus-nav-menu.nexus-active li:last-child {
+            border-bottom: none;
           }
 
           .nexus-mobile-toggle {
             display: block;
+            z-index: 1002;
+          }
+
+          .nexus-header-right {
+            display: none;
           }
         }
 

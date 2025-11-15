@@ -838,7 +838,7 @@ const Home: React.FC = () => {
                 user-friendly interface.</p>
               <div className="cta-buttons">
                 <a href="https://nexus-exchange.com/auth/signup" target='_blank' className="btn btn-primary">Create Account</a>
-                <a href="https://nexus-exchange.com/playstore" target='_blank' className="btn btn-secondary">Download App</a>
+                <a href="#download"  className="btn btn-secondary">Download App</a>
               </div>
             </div>
             <div className="hero-image">
@@ -863,7 +863,7 @@ const Home: React.FC = () => {
           <div className="about-content">
             <div className="about-image">
               <div style={{ width: '100%', height: '400px', background: 'linear-gradient(145deg, var(--primary), var(--accent))', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--dark)', fontSize: '18px', fontWeight: 'bold' }}>
-                <img src="./2.png" style={{ height: '400px' }} alt="About Nexus" />
+                <img src="./3.png" style={{ height: '400px' }} alt="About Nexus" />
               </div>
             </div>
             <div className="about-text">
@@ -1038,15 +1038,24 @@ const Home: React.FC = () => {
           <h2 className="section-title">Download <span>Nexus App</span></h2>
           <div className="app-content">
             <div className="app-image">
-              <div style={{ width: '100%', height: '400px', background: 'linear-gradient(145deg, var(--secondary), var(--primary))', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--dark)', fontSize: '18px', fontWeight: 'bold', position: 'relative' }}>
-                <div style={{ position: 'absolute', top: '20px', left: '20px', background: 'rgba(0,0,0,0.7)', color: 'white', padding: '5px 10px', borderRadius: '10px', fontSize: '14px' }}>
-                  <i className="fas fa-chart-line"></i> Live Trading
-                </div>
-                <div style={{ position: 'absolute', bottom: '20px', right: '20px', background: 'rgba(0,0,0,0.7)', color: 'white', padding: '5px 10px', borderRadius: '10px', fontSize: '14px' }}>
-                  <i className="fas fa-wallet"></i> Portfolio
-                </div>
-                <i className="fas fa-mobile-alt" style={{ fontSize: '100px' }}></i>
-              </div>
+            <div
+  style={{
+    width: '100%',
+    height: '400px',
+    backgroundImage: ` url('/playstore.jpg')`,
+    backgroundSize: 'contain',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    borderRadius: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'var(--dark)',
+    fontSize: '18px',
+    fontWeight: 'bold',
+    position: 'relative',
+  }}
+/>
             </div>
             <div className="app-text">
               <h3 style={{ fontSize: '2rem', marginBottom: '20px' }}>Trade On The Go</h3>

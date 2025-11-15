@@ -54,12 +54,7 @@ const FAQ: React.FC = () => {
       answer: "We support over 200 cryptocurrencies including Bitcoin (BTC), Ethereum (ETH), Binance Coin (BNB), Cardano (ADA), Solana (SOL), Ripple (XRP), Polkadot (DOT), and many more. We regularly add new tokens based on community demand and thorough security reviews.",
       category: "general"
     },
-    {
-      id: 6,
-      question: "How do I enable Two-Factor Authentication (2FA)?",
-      answer: "Go to your Account Settings > Security > Two-Factor Authentication. Download an authenticator app like Google Authenticator or Authy, scan the QR code, and enter the 6-digit code. We highly recommend enabling 2FA for enhanced account security.",
-      category: "account"
-    },
+ 
     {
       id: 7,
       question: "What is the minimum deposit amount?",
@@ -87,7 +82,7 @@ const FAQ: React.FC = () => {
     {
       id: 11,
       question: "How do I report a suspicious transaction?",
-      answer: "Immediately contact our security team at security@nexus-exchange.com with details of the transaction. Include transaction IDs, dates, amounts, and any relevant information. We investigate all reports promptly and may temporarily freeze suspicious transactions during investigation.",
+      answer: "Immediately contact our security team at support@nexus-exchange.com with details of the transaction. Include transaction IDs, dates, amounts, and any relevant information. We investigate all reports promptly and may temporarily freeze suspicious transactions during investigation.",
       category: "account"
     },
     {
@@ -684,9 +679,9 @@ const FAQ: React.FC = () => {
                 <button className="support-btn">
                   <i className="fas fa-comments"></i> Live Chat Support
                 </button>
-                <button className="support-btn secondary">
+                <a href='mailto:support@nexus-exchange.com'  style={{ textDecoration: "none" }} className="support-btn secondary">
                   <i className="fas fa-envelope"></i> Email Support
-                </button>
+                </a>
               </div>
             </div>
           </div>

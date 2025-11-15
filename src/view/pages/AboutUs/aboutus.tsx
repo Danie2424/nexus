@@ -527,10 +527,7 @@ const AboutUs: React.FC = () => {
         <div className="container">
           <div className="content-wrapper">
             <div className="content-image">
-              <div style={{ width: '100%', height: '400px', background: 'linear-gradient(145deg, var(--primary), var(--accent))', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--dark)', fontSize: '18px', fontWeight: 'bold' }}>
-                <i className="fas fa-globe-americas" style={{ fontSize: '60px', marginRight: '15px' }}></i>
-                Global Trading Platform
-              </div>
+              <img src='/vision.png' />
             </div>
             <div className="content-text">
               <h2 className="section-title">Our <span>Vision</span></h2>
@@ -547,10 +544,7 @@ const AboutUs: React.FC = () => {
         <div className="container">
           <div className="content-wrapper reverse">
             <div className="content-image">
-              <div style={{ width: '100%', height: '400px', background: 'linear-gradient(145deg, var(--secondary), var(--primary))', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--dark)', fontSize: '18px', fontWeight: 'bold' }}>
-                <i className="fas fa-user-shield" style={{ fontSize: '60px', marginRight: '15px' }}></i>
-                Your Keys, Your Control
-              </div>
+              <img src='/3.jpg' />
             </div>
             <div className="content-text">
               <h2 className="section-title">User <span>First Philosophy</span></h2>
@@ -603,10 +597,7 @@ const AboutUs: React.FC = () => {
         <div className="container">
           <div className="content-wrapper">
             <div className="content-image">
-              <div style={{ width: '100%', height: '400px', background: 'linear-gradient(145deg, var(--accent), var(--primary))', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--dark)', fontSize: '18px', fontWeight: 'bold' }}>
-                <i className="fas fa-bullseye" style={{ fontSize: '60px', marginRight: '15px' }}></i>
-                Our Concept & Mission
-              </div>
+              <img src='/4.jpg' />
             </div>
             <div className="content-text">
               <h2 className="section-title">OUR <span>CONCEPT & MISSION</span></h2>

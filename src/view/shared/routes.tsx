@@ -32,6 +32,11 @@ const publicRoutes = [
     loader: () => import("src/view/pages/Faqs/FAQs"),
   },
 
+        {
+    path: "/helpcenter",
+    loader: () => import("src/view/pages/HelpCenter/HelpCenter"),
+  },
+
 ];
 
 

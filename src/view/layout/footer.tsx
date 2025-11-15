@@ -36,17 +36,16 @@ function TabBottomNavigator() {
               <ul className="footer-links">
                 <li><Link to="/terms-of-use">Terms of Use</Link></li>
                 <li><Link to="/privacy">Privacy Policy</Link></li>
-                <li><a href="https://nexus-exchange.com">Cookie Policy</a></li>
-                <li><a href="https://nexus-exchange.com">AML Policy</a></li>
+                <li><Link to="/privacy">Cookie Policy</Link></li>
+                <li><Link to="/privacy">AML Policy</Link></li>
               </ul>
             </div>
             <div className="footer-column">
               <h3>Support</h3>
               <ul className="footer-links">
-                <li><a href="mailto:support@nexus-exchange.com">Help Center</a></li>
+                <li><Link to="/helpcenter">Help Center</Link></li>
                 <li><a href="mailto:support@nexus-exchange.com">Contact Us</a></li>
                 <li><a href="mailto:support@nexus-exchange.com">24/7 Chat Support</a></li>
-                <li><a href="mailto:support@nexus-exchange.com">System Status</a></li>
               </ul>
             </div>
           </div>
