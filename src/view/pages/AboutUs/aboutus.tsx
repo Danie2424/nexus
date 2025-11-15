@@ -544,7 +544,7 @@ const AboutUs: React.FC = () => {
         <div className="container">
           <div className="content-wrapper reverse">
             <div className="content-image">
-              <img src='/3.jpg' />
+              <img src='/4.png' />
             </div>
             <div className="content-text">
               <h2 className="section-title">User <span>First Philosophy</span></h2>
