@@ -11,6 +11,16 @@ function TabBottomNavigator() {
               <h3>NEXUS EXCHANGE</h3>
               <p style={{ color: 'var(--light-gray)', marginBottom: '20px' }}>The All-In-One Crypto Trading Hub for
                 professional traders and beginners alike.</p>
+                <div className="social-links">
+    <a href="mailto:support@nexus-exchange.com" className="social-link"  style={{ textDecoration: "none" }}>
+        <i className="fas fa-envelope"></i>
+    </a>
+
+    <a href="https://t.me/nexusexchange_official" target="_blank" className="social-link"  style={{ textDecoration: "none" }}>
+        <i className="fab fa-telegram-plane"></i>
+    </a>
+</div>
+
             
             </div>
             <div className="footer-column">

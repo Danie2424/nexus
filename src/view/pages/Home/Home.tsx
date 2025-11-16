@@ -1,9 +1,135 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom'
+import axios from 'axios';
+
+interface CryptoCurrency {
+  id: string;
+  name: string;
+  symbol: string;
+  icon: string;
+  price: number;
+  change24h: number;
+  volume24h: string;
+  marketCap: string;
+  isPositive: boolean;
+}
+
 const Home: React.FC = () => {
   const [isMenuActive, setIsMenuActive] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [marketData, setMarketData] = useState<CryptoCurrency[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Top 5 cryptocurrencies to track
+  const topCryptos = [
+    { id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin', icon: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png' },
+    { id: 'ethereum', symbol: 'ETH', name: 'Ethereum', icon: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
+    { id: 'binancecoin', symbol: 'BNB', name: 'Binance Coin', icon: 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png' },
+    { id: 'ripple', symbol: 'XRP', name: 'Ripple', icon: 'https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png' },
+    { id: 'cardano', symbol: 'ADA', name: 'Cardano', icon: 'https://assets.coingecko.com/coins/images/975/small/cardano.png' }
+  ];
+
+  // Mock circulating supply for market cap calculation
+  const getCirculatingSupply = (symbol: string): number => {
+    const supplies: { [key: string]: number } = {
+      'BTC': 19500000,
+      'ETH': 120000000,
+      'BNB': 153000000,
+      'XRP': 54300000000,
+      'ADA': 34000000000
+    };
+    return supplies[symbol] || 1000000000;
+  };
+
+  // Format volume and market cap
+  const formatNumber = (num: number): string => {
+    if (num >= 1e9) {
+      return `$${(num / 1e9).toFixed(1)}B`;
+    }
+    if (num >= 1e6) {
+      return `$${(num / 1e6).toFixed(1)}M`;
+    }
+    if (num >= 1e3) {
+      return `$${(num / 1e3).toFixed(1)}K`;
+    }
+    return `$${num.toFixed(0)}`;
+  };
+
+  // Fetch cryptocurrency data from Binance API
+  const fetchMarketData = async () => {
+    try {
+      setIsLoading(true);
+      
+      const promises = topCryptos.map(async (crypto) => {
+        try {
+          const response = await axios.get(`https://api.binance.com/api/v3/ticker/24hr?symbol=${crypto.symbol}USDT`);
+          const ticker = response.data;
+          
+          const price = parseFloat(ticker.lastPrice);
+          const change24h = parseFloat(ticker.priceChangePercent);
+          const volume = parseFloat(ticker.volume) * price;
+          const marketCap = price * getCirculatingSupply(crypto.symbol);
+          
+          return {
+            id: crypto.id,
+            name: crypto.name,
+            symbol: crypto.symbol,
+            icon: crypto.icon,
+            price: price,
+            change24h: change24h,
+            volume24h: formatNumber(volume),
+            marketCap: formatNumber(marketCap),
+            isPositive: change24h >= 0
+          };
+        } catch (error) {
+          console.error(`Error fetching data for ${crypto.symbol}:`, error);
+          // Return fallback data if API call fails
+          return {
+            id: crypto.id,
+            name: crypto.name,
+            symbol: crypto.symbol,
+            icon: crypto.icon,
+            price: 0,
+            change24h: 0,
+            volume24h: '$0',
+            marketCap: '$0',
+            isPositive: true
+          };
+        }
+      });
+
+      const results = await Promise.all(promises);
+      setMarketData(results);
+      
+    } catch (error) {
+      console.error('Error fetching market data:', error);
+      // Set fallback data if all API calls fail
+      const fallbackData = topCryptos.map((crypto, index) => ({
+        id: crypto.id,
+        name: crypto.name,
+        symbol: crypto.symbol,
+        icon: crypto.icon,
+        price: 1000 + (index * 100),
+        change24h: (Math.random() - 0.5) * 10,
+        volume24h: formatNumber(1000000 + (index * 1000000)),
+        marketCap: formatNumber(1000000000 + (index * 1000000000)),
+        isPositive: Math.random() > 0.5
+      }));
+      setMarketData(fallbackData);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMarketData();
+    
+    // Refresh data every 30 seconds
+    const interval = setInterval(fetchMarketData, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,20 +173,49 @@ const Home: React.FC = () => {
     }
   ];
 
-  const marketData = [
-    { name: "Bitcoin", symbol: "BTC", price: "$43,250.65", change: "+2.35%", volume: "$24.8B", marketCap: "$845.2B", isPositive: true },
-    { name: "Ethereum", symbol: "ETH", price: "$2,380.45", change: "+1.78%", volume: "$12.3B", marketCap: "$285.7B", isPositive: true },
-    { name: "Binance Coin", symbol: "BNB", price: "$315.20", change: "-0.45%", volume: "$1.8B", marketCap: "$48.5B", isPositive: false },
-    { name: "Cardano", symbol: "ADA", price: "$0.52", change: "+3.21%", volume: "$480M", marketCap: "$18.3B", isPositive: true },
-    { name: "Ripple", symbol: "XRP", price: "$0.62", change: "+0.85%", volume: "$1.2B", marketCap: "$33.5B", isPositive: true }
-  ];
-
   return (
     <>
       <style>{`
-       
+        /* Add loading spinner styles */
+        .loading-spinner {
+          display: inline-block;
+          width: 20px;
+          height: 20px;
+          border: 2px solid #f3f3f3;
+          border-top: 2px solid var(--primary);
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
 
-        /* Hero Section */
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+
+        .crypto-icon {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          background-color: var(--medium-gray);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
+          overflow: hidden;
+        }
+
+        .crypto-icon img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .fallback-icon {
+          font-size: 14px;
+          color: var(--primary);
+        }
+
+     /* Hero Section */
         .hero {
           padding: 180px 0 100px;
           background: linear-gradient(135deg, rgba(243, 186, 47, 0.1) 0%, rgba(0, 192, 118, 0.05) 100%);
@@ -823,9 +978,6 @@ const Home: React.FC = () => {
         }
       `}</style>
 
-      {/* Header & Navigation */}
-
-
       {/* Hero Section */}
       <section className="hero" id="home">
         <div className="container">
@@ -899,7 +1051,7 @@ const Home: React.FC = () => {
         <div className="container">
           <div className="trends-header">
             <h2 className="section-title">Live <span>Market Trends</span></h2>
-            <Link to='/market' href="#" className="btn btn-secondary">View All Markets</Link>
+            <Link to='/market' className="btn btn-secondary">View All Markets</Link>
           </div>
           <div className="markets-table-container">
             <table className="markets-table">
@@ -913,25 +1065,48 @@ const Home: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {marketData.map((crypto, index) => (
-                  <tr key={index}>
-                    <td>
-                      <div className="crypto-name">
-                        <div className="crypto-icon">
-                          <i className={`fab fa-${crypto.symbol.toLowerCase() === 'btc' ? 'bitcoin' : crypto.symbol.toLowerCase() === 'eth' ? 'ethereum' : 'coins'}`}></i>
-                        </div>
-                        <div>
-                          <div>{crypto.name}</div>
-                          <div style={{ fontSize: '0.8rem', color: 'var(--light-gray)' }}>{crypto.symbol}</div>
-                        </div>
-                      </div>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={5} style={{ textAlign: 'center', padding: '40px' }}>
+                      <div className="loading-spinner" style={{ margin: '0 auto' }}></div>
+                      <div style={{ marginTop: '10px', color: 'var(--light-gray)' }}>Loading market data...</div>
                     </td>
-                    <td>{crypto.price}</td>
-                    <td className={crypto.isPositive ? 'positive' : 'negative'}>{crypto.change}</td>
-                    <td>{crypto.volume}</td>
-                    <td>{crypto.marketCap}</td>
                   </tr>
-                ))}
+                ) : (
+                  marketData.map((crypto, index) => (
+                    <tr key={crypto.id}>
+                      <td>
+                        <div className="crypto-name">
+                          <div className="crypto-icon">
+                            <img 
+                              src={crypto.icon} 
+                              alt={crypto.name}
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                target.nextSibling?.remove();
+                                const fallback = document.createElement('div');
+                                fallback.className = 'fallback-icon';
+                                fallback.innerHTML = '<i class="fas fa-coins"></i>';
+                                target.parentNode?.appendChild(fallback);
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <div>{crypto.name}</div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--light-gray)' }}>{crypto.symbol}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>${crypto.price > 1 ? crypto.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : crypto.price.toFixed(4)}</td>
+                      <td className={crypto.isPositive ? 'positive' : 'negative'}>
+                        {crypto.change24h >= 0 ? '+' : ''}{crypto.change24h.toFixed(2)}%
+                      </td>
+                      <td>{crypto.volume24h}</td>
+                      <td>{crypto.marketCap}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
