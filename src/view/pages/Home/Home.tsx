@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 const Home: React.FC = () => {
   const [isMenuActive, setIsMenuActive] = useState(false);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -838,7 +838,7 @@ const Home: React.FC = () => {
                 user-friendly interface.</p>
               <div className="cta-buttons">
                 <a href="https://nexus-exchange.com/auth/signup" target='_blank' className="btn btn-primary">Create Account</a>
-                <a href="#download"  className="btn btn-secondary">Download App</a>
+                <a href="#download" className="btn btn-secondary">Download App</a>
               </div>
             </div>
             <div className="hero-image">
@@ -1027,7 +1027,7 @@ const Home: React.FC = () => {
           </div>
 
           <div style={{ textAlign: 'center', marginTop: '50px' }}>
-            <a href="https://nexus-exchange.com/auth/signin"  target="_blank" className="btn btn-primary">Get Started</a>
+            <a href="https://nexus-exchange.com/auth/signin" target="_blank" className="btn btn-primary">Get Started</a>
           </div>
         </div>
       </section>
@@ -1037,25 +1037,23 @@ const Home: React.FC = () => {
         <div className="container">
           <h2 className="section-title">Download <span>Nexus App</span></h2>
           <div className="app-content">
-            <div className="app-image">
-            <div
-  style={{
-    width: '100%',
-    height: '400px',
-    backgroundImage: ` url('/playstore.jpg')`,
-    backgroundSize: 'contain',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    borderRadius: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: 'var(--dark)',
-    fontSize: '18px',
-    fontWeight: 'bold',
-    position: 'relative',
-  }}
-/>
+            <div className="">
+              <div
+                style={{
+                  width: '100%',
+                  height: '400px',
+                  borderRadius: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--dark)',
+                  fontSize: '18px',
+                  fontWeight: 'bold',
+                  position: 'relative',
+                }}
+              >
+                <img src="/playstore.jpg" alt="" style={{ width: '100%', height: '100%' }} />
+              </div>
             </div>
             <div className="app-text">
               <h3 style={{ fontSize: '2rem', marginBottom: '20px' }}>Trade On The Go</h3>
@@ -1070,7 +1068,7 @@ const Home: React.FC = () => {
                     <div style={{ fontWeight: 'bold' }}>App Store</div>
                   </div>
                 </a>
-                <a href="https://nexus-exchange.com/playstore"  target="_blank" className="app-btn">
+                <a href="https://nexus-exchange.com/playstore" target="_blank" className="app-btn">
                   <i className="fab fa-google-play" style={{ fontSize: '20px' }}></i>
                   <div>
                     <div style={{ fontSize: '12px' }}>Get it on</div>
