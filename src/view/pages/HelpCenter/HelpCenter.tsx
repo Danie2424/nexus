@@ -8,16 +8,16 @@ const HelpCenter: React.FC = () => {
     technical: {
       name: "Dr. Sarah Chen",
       title: "Head of Technical Team",
-      email: "sarah.chen@nexus-exchange.com",
-      picture: "/images/technical-head.jpg",
+      email: "support@nexus-exchange.com",
+      picture: "/sara.jpg",
       description: "15+ years experience in blockchain technology and cybersecurity. Leads our technical infrastructure and platform development.",
       expertise: ["Blockchain Technology", "System Architecture", "Security", "API Integration"]
     },
     transactions: {
       name: "Michael Rodriguez",
       title: "Head of Transactions Team",
-      email: "michael.rodriguez@nexus-exchange.com",
-      picture: "/images/transactions-head.jpg",
+      email: "security@nexus-exchange.com",
+      picture: "/micheal.jpg",
       description: "Financial services expert with extensive background in digital asset management and transaction processing.",
       expertise: ["Payment Processing", "Risk Management", "Compliance", "Customer Support"]
     }
@@ -25,28 +25,15 @@ const HelpCenter: React.FC = () => {
 
   const contactInfo = {
     general: "support@nexus-exchange.com",
-    technical: "tech@nexus-exchange.com",
+    technical: "affiliate@nexus-exchange.com",
     security: "security@nexus-exchange.com",
-    partnerships: "partnerships@nexus-exchange.com",
-    compliance: "compliance@nexus-exchange.com"
   };
 
   const addresses = {
     headquarters: {
       name: "Global Headquarters",
-      address: "Nexus Exchange Tower, 123 Blockchain Avenue, Crypto Valley, CV 1001, Switzerland",
-      phone: "+41 44 123 4567"
+      address: "Headquartered in New York, with teams across Dubai, London, Los Angeles, and Miami,",
     },
-    operations: {
-      name: "Operations Center",
-      address: "Level 25, One Corporate Plaza, 88 Finance Street, Singapore 048624",
-      phone: "+65 6123 4567"
-    },
-    support: {
-      name: "Customer Support Hub",
-      address: "Tech Park Campus, 456 Innovation Drive, Austin, TX 78701, USA",
-      phone: "+1 (512) 555-7890"
-    }
   };
 
   const faqCategories = {
@@ -643,9 +630,6 @@ const HelpCenter: React.FC = () => {
                 <h3 className="address-name">{location.name}</h3>
                 <div className="address-details">
                   <p>{location.address}</p>
-                  <p className="address-phone">
-                    <i className="fas fa-phone"></i> {location.phone}
-                  </p>
                 </div>
               </div>
             ))}

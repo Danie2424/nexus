@@ -11,12 +11,7 @@ function TabBottomNavigator() {
               <h3>NEXUS EXCHANGE</h3>
               <p style={{ color: 'var(--light-gray)', marginBottom: '20px' }}>The All-In-One Crypto Trading Hub for
                 professional traders and beginners alike.</p>
-              <div className="social-links">
-                <a href="mailto:support@nexus-exchange.com" className="social-link"><i className="fab fa-twitter"></i></a>
-                <a href="mailto:support@nexus-exchange.com" className="social-link"><i className="fab fa-facebook-f"></i></a>
-                <a href="mailto:support@nexus-exchange.com" className="social-link"><i className="fab fa-linkedin-in"></i></a>
-                <a href="mailto:support@nexus-exchange.com" className="social-link"><i className="fab fa-instagram"></i></a>
-              </div>
+            
             </div>
             <div className="footer-column">
               <h3>Quick Links</h3>
@@ -27,7 +22,7 @@ function TabBottomNavigator() {
                 <li><a href="https://nexus-exchange.com/">Trading</a></li>
                 <li><a href="https://nexus-exchange.com">How It Works</a></li>
                 <li><a href="https://nexus-exchange.com/playstore">Download App</a></li>
-                <li><a href="mailto:support@nexus-exchange.com">Help & Support</a></li>
+                <li><Link to="/helpcenter">Help & Support</Link></li>
                 <li><Link to="/faqs">FAQs</Link></li>
               </ul>
             </div>
@@ -45,7 +40,6 @@ function TabBottomNavigator() {
               <ul className="footer-links">
                 <li><Link to="/helpcenter">Help Center</Link></li>
                 <li><a href="mailto:support@nexus-exchange.com">Contact Us</a></li>
-                <li><a href="mailto:support@nexus-exchange.com">24/7 Chat Support</a></li>
               </ul>
             </div>
           </div>

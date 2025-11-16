@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import axios from 'axios';
 
 interface CryptoCurrency {
-  id: number;
+  id: string;
   name: string;
   symbol: string;
   icon: string;
@@ -10,6 +11,8 @@ interface CryptoCurrency {
   volume24h: string;
   marketCap: string;
   inWatchlist: boolean;
+  priceChangePercent?: number;
+  volume?: string;
 }
 
 interface MarketNews {
@@ -20,129 +23,193 @@ interface MarketNews {
   icon: string;
 }
 
+interface BinanceTicker {
+  s: string; // Symbol
+  c: string; // Current price
+  P: string; // Price change percent
+  v: string; // Volume
+  q: string; // Quote volume
+}
+
 const Market: React.FC = () => {
   const [isMenuActive, setIsMenuActive] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeFilter, setActiveFilter] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Categories');
-  const [cryptocurrencies, setCryptocurrencies] = useState<CryptoCurrency[]>([
-    {
-      id: 1,
-      name: 'Bitcoin',
-      symbol: 'BTC',
-      icon: 'fab fa-bitcoin',
-      price: 43250.65,
-      change24h: 2.35,
-      volume24h: '$24.8B',
-      marketCap: '$845.2B',
-      inWatchlist: false
-    },
-    {
-      id: 2,
-      name: 'Ethereum',
-      symbol: 'ETH',
-      icon: 'fab fa-ethereum',
-      price: 2380.45,
-      change24h: 1.78,
-      volume24h: '$12.3B',
-      marketCap: '$285.7B',
-      inWatchlist: true
-    },
-    {
-      id: 3,
-      name: 'Binance Coin',
-      symbol: 'BNB',
-      icon: 'fas fa-coins',
-      price: 315.20,
-      change24h: -0.45,
-      volume24h: '$1.8B',
-      marketCap: '$48.5B',
-      inWatchlist: false
-    },
-    {
-      id: 4,
-      name: 'Cardano',
-      symbol: 'ADA',
-      icon: 'fas fa-gem',
-      price: 0.52,
-      change24h: 3.21,
-      volume24h: '$480M',
-      marketCap: '$18.3B',
-      inWatchlist: false
-    },
-    {
-      id: 5,
-      name: 'Ripple',
-      symbol: 'XRP',
-      icon: 'fab fa-xing',
-      price: 0.62,
-      change24h: 0.85,
-      volume24h: '$1.2B',
-      marketCap: '$33.5B',
-      inWatchlist: true
-    },
-    {
-      id: 6,
-      name: 'Dogecoin',
-      symbol: 'DOGE',
-      icon: 'fas fa-dog',
-      price: 0.08,
-      change24h: -1.25,
-      volume24h: '$420M',
-      marketCap: '$11.2B',
-      inWatchlist: false
-    },
-    {
-      id: 7,
-      name: 'Chainlink',
-      symbol: 'LINK',
-      icon: 'fas fa-link',
-      price: 14.32,
-      change24h: 5.42,
-      volume24h: '$680M',
-      marketCap: '$8.1B',
-      inWatchlist: false
-    },
-    {
-      id: 8,
-      name: 'Polkadot',
-      symbol: 'DOT',
-      icon: 'fas fa-puzzle-piece',
-      price: 6.85,
-      change24h: 2.15,
-      volume24h: '$320M',
-      marketCap: '$8.7B',
-      inWatchlist: false
-    }
-  ]);
+  const [cryptocurrencies, setCryptocurrencies] = useState<CryptoCurrency[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const ws = useRef<WebSocket | null>(null);
+
+  // Top cryptocurrencies to track
+  const topCryptos = [
+    { id: 'bitcoin', symbol: 'BTC', name: 'Bitcoin', icon: 'https://assets.coingecko.com/coins/images/1/small/bitcoin.png' },
+    { id: 'ethereum', symbol: 'ETH', name: 'Ethereum', icon: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
+    { id: 'binancecoin', symbol: 'BNB', name: 'Binance Coin', icon: 'https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png' },
+    { id: 'ripple', symbol: 'XRP', name: 'Ripple', icon: 'https://assets.coingecko.com/coins/images/44/small/xrp-symbol-white-128.png' },
+    { id: 'cardano', symbol: 'ADA', name: 'Cardano', icon: 'https://assets.coingecko.com/coins/images/975/small/cardano.png' },
+    { id: 'dogecoin', symbol: 'DOGE', name: 'Dogecoin', icon: 'https://assets.coingecko.com/coins/images/5/small/dogecoin.png' },
+    { id: 'chainlink', symbol: 'LINK', name: 'Chainlink', icon: 'https://assets.coingecko.com/coins/images/877/small/chainlink-new-logo.png' },
+    { id: 'polkadot', symbol: 'DOT', name: 'Polkadot', icon: 'https://assets.coingecko.com/coins/images/12171/small/polkadot.png' },
+    { id: 'solana', symbol: 'SOL', name: 'Solana', icon: 'https://assets.coingecko.com/coins/images/4128/small/solana.png' },
+    { id: 'matic-network', symbol: 'MATIC', name: 'Polygon', icon: 'https://assets.coingecko.com/coins/images/4713/small/matic-token-icon.png' }
+  ];
 
   const marketNews: MarketNews[] = [
     {
-      title: 'Bitcoin Surges Past $43,000 Amid Institutional Adoption',
-      excerpt: 'Major financial institutions continue to add Bitcoin to their balance sheets, driving prices to new monthly highs.',
+      title: 'Bitcoin Surges Amid Institutional Adoption',
+      excerpt: 'Major financial institutions continue to add Bitcoin to their balance sheets, driving prices higher.',
       category: 'Crypto News',
       timeAgo: '2 hours ago',
-      icon: 'fas fa-chart-line'
+      icon: '/n1.webp'
     },
     {
       title: 'Regulatory Clarity Boosts Ethereum Ecosystem',
-      excerpt: 'Recent regulatory developments have provided much-needed clarity for Ethereum-based projects and DeFi protocols.',
+      excerpt: 'Recent regulatory developments have provided much-needed clarity for Ethereum-based projects.',
       category: 'Regulation',
       timeAgo: '5 hours ago',
-      icon: 'fas fa-landmark'
+           icon: '/n2.png'
     },
     {
       title: 'NFT Market Sees Resurgence with New Gaming Projects',
-      excerpt: 'Play-to-earn gaming platforms are driving renewed interest in the NFT market, with trading volumes up 40% this month.',
+      excerpt: 'Play-to-earn gaming platforms are driving renewed interest in the NFT market.',
       category: 'NFT',
       timeAgo: '1 day ago',
-      icon: 'fas fa-rocket'
+            icon: '/n3.jpg'
     }
   ];
 
   const filterButtons = ['All', 'Gainers', 'Losers', 'DeFi', 'NFT', 'Metaverse'];
   const categories = ['All Categories', 'Currency', 'Platform', 'DeFi', 'NFT'];
+
+  // Mock circulating supply for market cap calculation
+  const getCirculatingSupply = (symbol: string): number => {
+    const supplies: { [key: string]: number } = {
+      'BTC': 19500000,
+      'ETH': 120000000,
+      'BNB': 153000000,
+      'XRP': 54300000000,
+      'ADA': 34000000000,
+      'DOGE': 132000000000,
+      'LINK': 1000000000,
+      'DOT': 1200000000,
+      'SOL': 400000000,
+      'MATIC': 10000000000
+    };
+    return supplies[symbol] || 1000000000;
+  };
+
+  // Fetch initial prices from Binance API
+  const fetchInitialPrices = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Create initial cryptocurrency data structure
+      const initialCryptos = topCryptos.map((crypto) => ({
+        id: crypto.id,
+        name: crypto.name,
+        symbol: crypto.symbol,
+        icon: crypto.icon,
+        price: 0,
+        change24h: 0,
+        volume24h: '$0',
+        marketCap: '$0',
+        inWatchlist: false
+      }));
+      
+      setCryptocurrencies(initialCryptos);
+      
+      // Fetch data from Binance API
+      const symbols = topCryptos.map(crypto => `${crypto.symbol}USDT`).join(',');
+      const response = await axios.get(`https://api.binance.com/api/v3/ticker/24hr?symbols=${JSON.stringify(symbols.split(','))}`);
+      
+      const updatedCryptos = initialCryptos.map(crypto => {
+        const symbol = `${crypto.symbol}USDT`;
+        const ticker = response.data.find((t: any) => t.symbol === symbol);
+        
+        if (ticker) {
+          const price = parseFloat(ticker.lastPrice);
+          const change24h = parseFloat(ticker.priceChangePercent);
+          const volume = parseFloat(ticker.volume) * price;
+          const marketCapValue = price * getCirculatingSupply(crypto.symbol);
+          
+          return {
+            ...crypto,
+            price: price,
+            change24h: change24h,
+            volume24h: `$${volume.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+            marketCap: `$${marketCapValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
+          };
+        }
+        return crypto;
+      });
+      
+      setCryptocurrencies(updatedCryptos);
+    } catch (error) {
+      console.error('Error fetching initial prices:', error);
+      // Fallback to initial data if API fails
+      const fallbackCryptos = topCryptos.map((crypto, index) => ({
+        id: crypto.id,
+        name: crypto.name,
+        symbol: crypto.symbol,
+        icon: crypto.icon,
+        price: 30000 + (index * 1000), // Fallback prices
+        change24h: (Math.random() * 10) - 5, // Random changes between -5% and +5%
+        volume24h: `$${(Math.random() * 1000000000).toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+        marketCap: `$${(Math.random() * 50000000000).toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+        inWatchlist: false
+      }));
+      setCryptocurrencies(fallbackCryptos);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initialize cryptocurrency data
+  useEffect(() => {
+    fetchInitialPrices();
+  }, []);
+
+  // WebSocket connection for real-time updates
+  useEffect(() => {
+    if (cryptocurrencies.length === 0) return;
+
+    const symbols = topCryptos.map(crypto => `${crypto.symbol.toLowerCase()}usdt@ticker`).join('/');
+    ws.current = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${symbols}`);
+
+    ws.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      const ticker = data.data;
+      
+      setCryptocurrencies(prev => prev.map(crypto => {
+        if (`${crypto.symbol}USDT` === ticker.s) {
+          const newPrice = parseFloat(ticker.c);
+          const newChange = parseFloat(ticker.P);
+          const volume = (parseFloat(ticker.v) * newPrice);
+          const marketCapValue = newPrice * getCirculatingSupply(crypto.symbol);
+          
+          return {
+            ...crypto,
+            price: newPrice,
+            change24h: newChange,
+            volume24h: `$${volume.toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+            marketCap: `$${marketCapValue.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
+          };
+        }
+        return crypto;
+      }));
+    };
+
+    ws.current.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    return () => {
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, [cryptocurrencies.length]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -161,7 +228,7 @@ const Market: React.FC = () => {
     setActiveFilter(filter);
   };
 
-  const toggleWatchlist = (id: number) => {
+  const toggleWatchlist = (id: string) => {
     setCryptocurrencies(prev => 
       prev.map(crypto => 
         crypto.id === id 
@@ -170,28 +237,6 @@ const Market: React.FC = () => {
       )
     );
   };
-
-  const updatePrices = () => {
-    setCryptocurrencies(prev => 
-      prev.map(crypto => {
-        const randomChange = (Math.random() - 0.5) * 0.3;
-        const newPrice = crypto.price * (1 + randomChange / 100);
-        const newChange = crypto.change24h + randomChange;
-        
-        return {
-          ...crypto,
-          price: parseFloat(newPrice.toFixed(2)),
-          change24h: parseFloat(newChange.toFixed(2))
-        };
-      })
-    );
-  };
-
-  // Update prices every 10 seconds
-  useEffect(() => {
-    const interval = setInterval(updatePrices, 10000);
-    return () => clearInterval(interval);
-  }, []);
 
   const filteredCryptos = cryptocurrencies.filter(crypto => {
     const matchesSearch = crypto.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -210,6 +255,7 @@ const Market: React.FC = () => {
   return (
     <>
       <style>{`
+        /* Your existing CSS styles remain the same */
         :root {
           --primary: #F3BA2F;
           --secondary: #00C076;
@@ -525,11 +571,17 @@ const Market: React.FC = () => {
           width: 32px;
           height: 32px;
           border-radius: 50%;
-          background-color: var(--medium-gray);
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 16px;
+          overflow: hidden;
+        }
+        
+        .crypto-icon img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
         
         .crypto-symbol {
@@ -560,6 +612,21 @@ const Market: React.FC = () => {
         
         .watchlist-btn.active {
           color: var(--primary);
+        }
+        
+        .loading-spinner {
+          display: inline-block;
+          width: 20px;
+          height: 20px;
+          border: 2px solid #f3f3f3;
+          border-top: 2px solid var(--primary);
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
         
         /* Top Movers */
@@ -596,6 +663,13 @@ const Market: React.FC = () => {
           align-items: center;
           justify-content: center;
           font-size: 20px;
+          overflow: hidden;
+        }
+        
+        .mover-icon img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
         
         .mover-info {
@@ -828,7 +902,8 @@ const Market: React.FC = () => {
         }
       `}</style>
 
-
+      {/* Header */}
+      
 
       {/* Hero Section */}
       <section className="markets-hero">
@@ -847,19 +922,29 @@ const Market: React.FC = () => {
             {/* Market Stats */}
             <div className="market-stats">
               <div className="stat-card">
-                <div className="stat-value">$1.74T</div>
+                <div className="stat-value">
+                  {isLoading ? <div className="loading-spinner"></div> : `$${(cryptocurrencies.reduce((sum, crypto) => sum + (parseFloat(crypto.marketCap.replace('$', '').replace(/,/g, '')) || 0), 0) / 1e12).toFixed(2)}T`}
+                </div>
                 <div className="stat-label">Total Market Cap</div>
               </div>
               <div className="stat-card">
-                <div className="stat-value">$64.2B</div>
+                <div className="stat-value">
+                  {isLoading ? <div className="loading-spinner"></div> : `$${(cryptocurrencies.reduce((sum, crypto) => sum + (parseFloat(crypto.volume24h.replace('$', '').replace(/,/g, '')) || 0), 0) / 1e9).toFixed(1)}B`}
+                </div>
                 <div className="stat-label">24h Trading Volume</div>
               </div>
               <div className="stat-card">
-                <div className="stat-value">42.5%</div>
+                <div className="stat-value">
+                  {isLoading ? <div className="loading-spinner"></div> : 
+                    cryptocurrencies.length > 0 ? 
+                    `${((cryptocurrencies.find(c => c.symbol === 'BTC')?.price || 0) * getCirculatingSupply('BTC') / cryptocurrencies.reduce((sum, crypto) => sum + (parseFloat(crypto.marketCap.replace('$', '').replace(/,/g, '')) || 0), 0) * 100).toFixed(1)}%` 
+                    : '0%'
+                  }
+                </div>
                 <div className="stat-label">Bitcoin Dominance</div>
               </div>
               <div className="stat-card">
-                <div className="stat-value">9,821</div>
+                <div className="stat-value">10,000+</div>
                 <div className="stat-label">Active Cryptocurrencies</div>
               </div>
             </div>
@@ -915,47 +1000,56 @@ const Market: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredCryptos.map((crypto, index) => (
-                    <tr key={crypto.id}>
-                      <td>{index + 1}</td>
-                      <td>
-                        <div className="crypto-name">
-                          <div className="crypto-icon">
-                            <i className={crypto.icon}></i>
-                          </div>
-                          <div>
-                            <div>{crypto.name}</div>
-                            <div className="crypto-symbol">{crypto.symbol}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>${crypto.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                      <td className={crypto.change24h >= 0 ? 'positive' : 'negative'}>
-                        {crypto.change24h >= 0 ? '+' : ''}{crypto.change24h.toFixed(2)}%
-                      </td>
-                      <td>{crypto.volume24h}</td>
-                      <td>{crypto.marketCap}</td>
-                      <td>
-                        <div 
-                          style={{ 
-                            width: '80px', 
-                            height: '30px', 
-                            background: `linear-gradient(90deg, ${crypto.change24h >= 0 ? 'var(--secondary)' : 'var(--accent)'} ${Math.abs(crypto.change24h) * 20}%, var(--medium-gray) ${100 - Math.abs(crypto.change24h) * 20}%)`, 
-                            borderRadius: '4px' 
-                          }}
-                        ></div>
-                      </td>
-                      <td>
-                        <button 
-                          className={`watchlist-btn ${crypto.inWatchlist ? 'active' : ''}`}
-                          onClick={() => toggleWatchlist(crypto.id)}
-                          title={crypto.inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
-                        >
-                          <i className={crypto.inWatchlist ? 'fas fa-star' : 'far fa-star'}></i>
-                        </button>
+                  {isLoading ? (
+                    <tr>
+                      <td colSpan={8} style={{ textAlign: 'center', padding: '40px' }}>
+                        <div className="loading-spinner" style={{ margin: '0 auto' }}></div>
+                        <div style={{ marginTop: '10px' }}>Loading market data...</div>
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    filteredCryptos.map((crypto, index) => (
+                      <tr key={crypto.id}>
+                        <td>{index + 1}</td>
+                        <td>
+                          <div className="crypto-name">
+                            <div className="crypto-icon">
+                              <img src={crypto.icon} alt={crypto.name} />
+                            </div>
+                            <div>
+                              <div>{crypto.name}</div>
+                              <div className="crypto-symbol">{crypto.symbol}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>${crypto.price > 1 ? crypto.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : crypto.price.toFixed(4)}</td>
+                        <td className={crypto.change24h >= 0 ? 'positive' : 'negative'}>
+                          {crypto.change24h >= 0 ? '+' : ''}{crypto.change24h.toFixed(2)}%
+                        </td>
+                        <td>{crypto.volume24h}</td>
+                        <td>{crypto.marketCap}</td>
+                        <td>
+                          <div 
+                            style={{ 
+                              width: '80px', 
+                              height: '30px', 
+                              background: `linear-gradient(90deg, ${crypto.change24h >= 0 ? 'var(--secondary)' : 'var(--accent)'} ${Math.abs(crypto.change24h) * 5}%, var(--medium-gray) ${100 - Math.abs(crypto.change24h) * 5}%)`, 
+                              borderRadius: '4px' 
+                            }}
+                          ></div>
+                        </td>
+                        <td>
+                          <button 
+                            className={`watchlist-btn ${crypto.inWatchlist ? 'active' : ''}`}
+                            onClick={() => toggleWatchlist(crypto.id)}
+                            title={crypto.inWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
+                          >
+                            <i className={crypto.inWatchlist ? 'fas fa-star' : 'far fa-star'}></i>
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -967,7 +1061,7 @@ const Market: React.FC = () => {
                 {topMovers.map(mover => (
                   <div key={mover.id} className="mover-card">
                     <div className="mover-icon">
-                      <i className={mover.icon}></i>
+                      <img src={mover.icon} alt={mover.name} />
                     </div>
                     <div className="mover-info">
                       <div className="mover-name">{mover.name}</div>
@@ -988,7 +1082,7 @@ const Market: React.FC = () => {
                 {marketNews.map((news, index) => (
                   <div key={index} className="news-card">
                     <div className="news-image">
-                      <i className={news.icon}></i>
+                     <img src={news.icon} style={{width :'100%', height:'100%'}} />
                     </div>
                     <div className="news-content">
                       <h3 className="news-title">{news.title}</h3>
@@ -1005,6 +1099,7 @@ const Market: React.FC = () => {
           </div>
         </div>
       </section>
+
 
     </>
   );
