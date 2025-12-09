@@ -100,7 +100,7 @@ const FAQ: React.FC = () => {
     {
       id: 14,
       question: "What countries are supported by Nexus Exchange?",
-      answer: "We serve customers in over 150 countries worldwide. However, due to regulatory requirements, we cannot serve residents of certain restricted jurisdictions including the United States, North Korea, Iran, and Syria. Check our Terms of Service for the complete list of restricted countries.",
+      answer: "We serve customers in over 150 countries worldwide. However, due to regulatory requirements, we cannot serve residents of certain restricted jurisdictions including North Korea, Iran, and Syria. Check our Terms of Service for the complete list of restricted countries.",
       category: "general"
     },
     {
